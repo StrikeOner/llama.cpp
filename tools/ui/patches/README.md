@@ -6,7 +6,7 @@ Adds [Mermaid](https://mermaid.js.org/) diagram rendering support to the llama.c
 
 ### Compatibility
 
-Generated against: 40d5358
+Generated against: 5d246a7
 
 ### Usage
 
