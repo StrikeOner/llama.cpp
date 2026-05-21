@@ -36,17 +36,10 @@
 	import githubLightCss from 'highlight.js/styles/github.css?inline';
 	import { mode } from 'mode-watcher';
 	import { CodeBlockActions, DialogCodePreview } from '$lib/components/app';
-	import mermaid from 'mermaid';
 	import { createAutoScrollController } from '$lib/hooks/use-auto-scroll.svelte';
 	import type { DatabaseMessageExtra } from '$lib/types/database';
 	import { config } from '$lib/stores/settings.svelte';
 	import { fadeInView } from '$lib/actions/fade-in-view.svelte';
-
-	mermaid.initialize({
-		startOnLoad: false,
-		theme: 'default',
-		securityLevel: 'loose'
-	});
 
 	interface Props {
 		attachments?: DatabaseMessageExtra[];
@@ -515,17 +508,21 @@
 		const nodes = containerRef.querySelectorAll('pre.mermaid:not([data-mermaid-rendered])');
 		if (nodes.length === 0) return;
 
+		// lazy load the mermaid dependecy only when needed to reduce bundle size.
+		const { default: mermaid } = await import('mermaid');
+
 		const isDark = mode.current === ColorMode.DARK;
 		mermaid.initialize({
 			startOnLoad: false,
 			theme: isDark ? 'dark' : 'default',
-			securityLevel: 'loose'
+			securityLevel: 'strict'
 		});
 
 		try {
 			await mermaid.run({
 				nodes: Array.from(nodes) as unknown as NodeListOf<HTMLElement>
 			});
+			nodes.forEach((node) => node.setAttribute('data-mermaid-rendered', 'true'));
 		} catch (error) {
 			console.error('Failed to render mermaid diagram:', error);
 		}
